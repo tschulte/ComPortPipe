@@ -1,0 +1,86 @@
+# ComPortPipe
+
+A simple utility that pipes all bytes received from one or more serial ports to another serial port.
+It automatically recovers from port errors.
+Ports don't even need to be present at startup of the program.
+
+## Use Cases
+
+### Multiple steno machines connected to the same computer
+
+When you have multiple steno machines connected to a computer and want to use both with Plover, this is currently not possible with Plover alone.
+In that scenario, at least when using USB, the OS might even assign the port dynamically and in the order of plugging in the devices.
+
+I for example have an ErgoDox and a Stenoboard.
+Both devices use the TxBolt protocol and can be used with Plover.
+Sometimes I connect the ErgoDox first, sometimes the Stenoboard.
+But only the first to be connected can be used with Plover.
+
+Using ComPortPipe, it is now possible to use both devices at the same time without any problems.
+
+### Using Plover within a VM
+
+In addition to the problem above, I do all my work in a Linux VM.
+And I start Plover in the VM, because when Plover is running on the host, it doesn't work in the VM at all (https://github.com/openstenoproject/plover/issues/707).
+
+I can configure the VM to automatically connect the Stenoboard to the VM.
+I could do the same for the ErgoDox, but in that case I cannot use the ErgoDox as normal keyboard in the Windows host.
+
+Therefore I had to manually connect and disconnect the ErgoDox to the VM.
+But again, while connected to the VM, the keyboard is not usable in the host.
+Plus when connecting the ErgoDox, it took a couple of seconds for the TXBolt protocol to be available.
+And in Plover I need https://github.com/openstenoproject/plover/issues/596 applied and https://github.com/tschulte/plover_auto_reconnect_machine installed.
+
+Now on the Windows host I use com0com to create COM10 and COM11.
+Everything that is written to COM10 will be available on COM11.
+I also start ComPortPipe to pipe all possible com ports to COM10: `ComPortPipe COM1 COM2 COM3 COM4 COM5 COM6 COM7 COM8 COM9 COM10`.
+COM11 is permanently connected to the VM in the settings of that VM.
+Inside the VM Plover connects to the new com port (`/dev/ttyS1` in my case).
+Now I can connect and disconnect both the ErgoDox and the Stenoboard in any order and still use both in Plover.
+
+And the ErgoDox is always usable in the host as well.
+I only have to switch between the steno and the keyboard layer.
+
+The only downside is that Plover cannot show the connection state any more, since that port is always available.
+
+## Prerequisites
+
+### Virtual pair of com ports
+
+For this program to work, you need to have a pair of virtual COM ports with a virtual null-modem connection between them.
+I.e. everything that is send to one port can be read from the other and vice versa.
+
+#### Windows
+
+On Windows you may install http://com0com.sourceforge.net/[com0com].
+
+#### Linux and MacOS
+
+On Linux and MacOS you can use http://www.dest-unreach.org/socat/[socat].
+
+`socat -d -d pty,rawer pty,rawer`
+
+creates two PTYs, e.g. `/dev/pts/7` and `/dev/pts/8`.
+
+The problem with above command is that the exact devices are dynamic and might change with every call.
+To allow to have stable port names, you can tell socat to create symlinks for both devices.
+
+`socat -d -d pty,rawer,link=$HOME/dev/ttyS0 pty,rawer,link=$HOME/dev/ttyS1`
+
+will create symlinks `$HOME/dev/ttyS0` and `$HOME/dev/ttyS1`.
+The folder (`$HOME/dev` in this case) must exist and you need to have permission to write to that folder.
+
+### Java
+
+ComPortPipe needs Java 8 or newer installed.
+If you don't know where to get Java, you may use https://aws.amazon.com/de/corretto/[Amazon]
+
+## Installation
+
+Download and unpack the latest release.
+
+## Launching
+
+* Open a console window and navigate to the `bin`-subfolder of the installed ComPortPipe application
+* Execute `ComPortPipe COM1 COM2 COM3 COM10` to use COM1, COM2 and COM3 as input and transfer everything to COM10.
+  (On Linux use `./ComPortPipe /dev/ttyS1 /dev/ttyS2 $home/dev/ttyS0`)

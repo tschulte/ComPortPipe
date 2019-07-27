@@ -1,0 +1,10 @@
+* text=auto
+*.groovy text diff=java
+*.java text diff=java
+*.gradle text diff=java
+*.gradle.kts text diff=java
+*.properties text
+*.jar binary
+*.txt text
+gradlew text eol=lf
+gradlew.bat text eol=crlf

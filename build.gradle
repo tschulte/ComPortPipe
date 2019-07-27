@@ -1,0 +1,54 @@
+plugins {
+    // Apply the java plugin to add support for Java
+    id "java"
+
+    // Apply the application plugin to add support for building an application
+    id "application"
+
+    // Apply the groovy plugin to also add support for Groovy (needed for Spock)
+    id "groovy"
+
+
+    // Release with semantic release
+    id "de.gliderpilot.semantic-release" version "1.4.0"
+}
+
+group = "de.gliderpilot"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation("org.scream3r:jssc:2.8.0")
+
+    // Use the latest Groovy version for Spock testing
+    testImplementation("org.codehaus.groovy:groovy-all:2.5.6")
+
+    // Use the awesome Spock testing and specification framework even with Java
+    testImplementation("org.spockframework:spock-core:1.2-groovy-2.5")
+    testImplementation("junit:junit:4.12")
+}
+
+// Define the main class for the application
+mainClassName = "de.gliderpilot.comportpipe.App"
+
+def setExtValue(String property, String systemenv) {
+    project.ext."$property" = project.hasProperty(property) ? project.getProperty(property) : System.getenv(systemenv)
+}
+setExtValue('ghToken', 'GH_TOKEN')
+
+semanticRelease {
+    repo {
+        ghToken = project.ext.ghToken
+        releaseAsset distZip, contentType: "application/zip"
+        releaseAsset distTar, contentType: "application/x-tar"
+
+    }
+}
+
