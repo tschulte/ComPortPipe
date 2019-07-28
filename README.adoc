@@ -73,7 +73,7 @@ The folder (`$HOME/dev` in this case) must exist and you need to have permission
 ### Java
 
 ComPortPipe needs Java 8 or newer installed.
-If you don't know where to get Java, you may use https://aws.amazon.com/de/corretto/[Amazon]
+If you don't know where to get Java, you may use https://aws.amazon.com/de/corretto/[Amazon Corretto].
 
 ## Installation
 
