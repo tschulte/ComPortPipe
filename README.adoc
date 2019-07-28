@@ -77,7 +77,7 @@ If you don't know where to get Java, you may use https://aws.amazon.com/de/corre
 
 ## Installation
 
-Download and unpack the latest release.
+Download and unpack the latest https://github.com/tschulte/ComPortPipe/releases[release].
 
 ## Launching
 
